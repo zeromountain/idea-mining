@@ -58,4 +58,10 @@ cc --plugin-dir /Users/son-yeongsan/claude-plugins/plugins/<plugin-name>
 
 ## The idea-mining skill
 
-`plugins/idea-mining/skills/idea-mining/SKILL.md` drives a fixed workflow (scoping → problem-finding → solution divergence → scoring/convergence → save), documented in full inside the skill file itself — don't duplicate that here. One thing worth knowing without opening the skill: **it writes its output outside this repo**, to `~/ideas/` (individual idea files, `INDEX.md`, and `sessions/` logs), which it creates on first use. That directory is not part of this plugin and is never checked into this repo.
+`plugins/idea-mining/skills/idea-mining/SKILL.md` drives a fixed workflow (scoping → problem-finding → divergence → critique → scoring/convergence → save) across three modes (fast / deep / portfolio review), documented in full inside the skill file itself — don't duplicate that here.
+
+Two things worth knowing without opening the skill:
+- **It writes its output outside this repo**, to `~/ideas/` (individual idea files, `INDEX.md`, and `sessions/` logs), which it creates on first use. That directory is not part of this plugin and is never checked into this repo.
+- **Domain-specific judgment lives in `references/domains/{business,product,tech,content}.md`**, one file per idea domain, each with the same four sections (required questions, extra scoring items, common failure patterns, cheap validation examples). When editing domain guidance, keep that section structure — the skill body reads all four domain files the same way regardless of which one applies.
+
+Deep mode spawns subagents (via the `Agent` tool) for two things: parallel research across material sources, and an independent "red team" critique that is deliberately given only the idea summary and problem definition — not the reasoning that produced it — so it can't be talked into agreeing. If you change how deep mode is invoked, preserve that context isolation; it's the mechanism that makes the critique useful rather than a rubber stamp.
