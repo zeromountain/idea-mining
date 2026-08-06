@@ -17,6 +17,7 @@ claude-plugins/
         └── skills/idea-mining/
             ├── SKILL.md                # skill body — auto-discovered because the filename is SKILL.md
             └── references/             # loaded on demand by the skill, not always in context
+                └── planning.md         # planning mode: the one reference that makes the skill write outside ~/ideas/
 ```
 
 This is a two-level manifest system:
@@ -58,10 +59,11 @@ cc --plugin-dir /Users/son-yeongsan/claude-plugins/plugins/<plugin-name>
 
 ## The idea-mining skill
 
-`plugins/idea-mining/skills/idea-mining/SKILL.md` drives a fixed workflow (scoping → problem-finding → divergence → critique → scoring/convergence → save) across three modes (fast / deep / portfolio review), documented in full inside the skill file itself — don't duplicate that here.
+`plugins/idea-mining/skills/idea-mining/SKILL.md` drives a fixed workflow (scoping → problem-finding → divergence → critique → scoring/convergence → save) across four modes (fast / deep / portfolio review / planning), documented in full inside the skill file itself — don't duplicate that here.
 
-Two things worth knowing without opening the skill:
+Three things worth knowing without opening the skill:
 - **It writes its output outside this repo**, to `~/ideas/` (individual idea files, `INDEX.md`, and `sessions/` logs), which it creates on first use. That directory is not part of this plugin and is never checked into this repo.
+- **Planning mode additionally writes inside whatever project the user is working in** — `<project root>/docs/planning/<idea-slug>/`, a five-document sequence (`01-prd.md` … `05-tech-design.md`) that carries a saved idea forward once it's ready to be built. This is the only mode that touches files outside `~/ideas/`; see `references/planning.md` for the full procedure (idea selection, the unvalidated-assumption warning gate, and the backlink it writes into the idea file).
 - **Domain-specific judgment lives in `references/domains/{business,product,tech,content}.md`**, one file per idea domain, each with the same four sections (required questions, extra scoring items, common failure patterns, cheap validation examples). When editing domain guidance, keep that section structure — the skill body reads all four domain files the same way regardless of which one applies.
 
 Deep mode spawns subagents (via the `Agent` tool) for two things: parallel research across material sources, and an independent "red team" critique that is deliberately given only the idea summary and problem definition — not the reasoning that produced it — so it can't be talked into agreeing. The research subagents also build a "problem-space map" (existing solutions per problem) in the same pass, which gets reused three times downstream (shown at the problem checkpoint, injected as a divergence constraint, and used to grade each solution) — don't add a third, separate subagent call for this; the map-building is folded into the existing research call on purpose to avoid redundant searches. If you change how deep mode is invoked, preserve the red team's context isolation; it's the mechanism that makes the critique useful rather than a rubber stamp.
