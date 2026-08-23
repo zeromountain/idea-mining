@@ -1,6 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "my-plugins",
+  "description": "son-yeongsan의 개인 Claude Code 플러그인 마켓플레이스 — 아이디어 발굴, 주식 리서치, 자산통합관리(Personal CFO).",
   "owner": {
     "name": "son-yeongsan"
   },
@@ -13,6 +14,24 @@
       },
       "category": "productivity",
       "source": "./plugins/idea-mining"
+    },
+    {
+      "name": "stock-analyst",
+      "description": "종목명·티커 하나로 시장 데이터 → 기업/재무 분석 → 밸류에이션 → Bull/Bear 논쟁 → Risk → Investment Committee 순서의 투자 리서치를 수행하는 멀티에이전트 스킬 플러그인. 수치는 결정론적 파이썬 스크립트가 계산하고 판단만 서브에이전트가 맡는다. 미국·한국 주식, ETF·포트폴리오를 지원하며 분석 Thesis와 무효화 조건을 ~/stock-research/에 축적해 재검증한다.",
+      "author": {
+        "name": "son-yeongsan"
+      },
+      "category": "productivity",
+      "source": "./plugins/stock-analyst"
+    },
+    {
+      "name": "wealth-manager",
+      "description": "사용자의 전체 재무 상태(현금흐름·저축·소비·부채·보험·목표·순자산)를 관리하는 Personal CFO 멀티에이전트 스킬 플러그인. 가계 재무 안정성을 투자수익보다 우선하며, stock-analyst(주식)와 real-estate-advisor(부동산, HTTP :3001)를 대체하지 않고 그 위에서 오케스트레이션한다. 모든 계산은 결정론적 파이썬 스크립트가 하고, 우선순위 충돌은 게이트 기반 산술 중재로 재현 가능하게 해결한다.",
+      "author": {
+        "name": "son-yeongsan"
+      },
+      "category": "productivity",
+      "source": "./plugins/wealth-manager"
     }
   ]
 }

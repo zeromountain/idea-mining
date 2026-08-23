@@ -1,0 +1,8 @@
+{
+  "name": "stock-analyst",
+  "version": "0.1.0",
+  "description": "종목명·티커를 입력하면 시장 데이터 수집 → 기업/재무 분석 → 밸류에이션 → Bull/Bear 논쟁 → Risk 검증 → Investment Committee 순서로 투자 리서치를 수행하고 리포트를 ~/stock-research/에 축적하는 멀티에이전트 스킬 플러그인. 수치 계산은 결정론적 파이썬 스크립트가, 판단은 서브에이전트가 맡아 숫자 날조를 구조적으로 차단한다. 미국·한국 주식과 ETF·포트폴리오를 지원한다.",
+  "author": {
+    "name": "son-yeongsan"
+  }
+}
