@@ -1,6 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "idea-mining",
+  "description": "son-yeongsan의 아이디어 발굴 Claude Code 플러그인 마켓플레이스.",
   "owner": {
     "name": "son-yeongsan"
   },
