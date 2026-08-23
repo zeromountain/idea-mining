@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "my-plugins",
+  "name": "idea-mining",
   "owner": {
     "name": "son-yeongsan"
   },

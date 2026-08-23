@@ -21,10 +21,12 @@ claude-plugins/
 ```
 
 This is a two-level manifest system:
-- `.claude-plugin/marketplace.json` at the repo root declares the marketplace itself (`name: my-plugins`) and lists each plugin's `source` as a relative path (e.g. `./plugins/idea-mining`).
+- `.claude-plugin/marketplace.json` at the repo root declares the marketplace itself (`name: idea-mining`) and lists each plugin's `source` as a relative path (e.g. `./plugins/idea-mining`).
 - Each plugin under `plugins/` has its own `.claude-plugin/plugin.json` and owns its `skills/`, `commands/`, `agents/`, or `hooks/` directories.
 
-**Naming gotcha**: the marketplace's install identifier is `my-plugins` (the `name` field in `marketplace.json`), not the repo name (`idea-mining`). Installing this plugin is always `idea-mining@my-plugins`, regardless of what the GitHub repo is called.
+The marketplace's install identifier is the `name` field in `marketplace.json` (`idea-mining`),
+which happens to match the repo name here — don't assume that's guaranteed if you fork or rename
+either one. Installing this plugin is `idea-mining@idea-mining`.
 
 ## Adding a new plugin
 
@@ -52,7 +54,7 @@ cc --plugin-dir /Users/son-yeongsan/claude-plugins/plugins/<plugin-name>
 **Register this marketplace and install a plugin from it** (run inside a Claude Code session, not the shell):
 ```
 /plugin marketplace add zeromountain/idea-mining
-/plugin install idea-mining@my-plugins
+/plugin install idea-mining@idea-mining
 ```
 
 **Ship an edit to an installed plugin**: edit files under `plugins/<plugin-name>/`, commit, then `git push` — installed instances pick up changes on next sync (no version bump required for personal use, but bump `version` in `plugin.json` if you want to signal a real release).

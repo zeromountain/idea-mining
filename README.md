@@ -10,10 +10,11 @@
 
 ```
 /plugin marketplace add zeromountain/idea-mining
-/plugin install idea-mining@my-plugins
+/plugin install idea-mining@idea-mining
 ```
 
-설치 식별자(`@` 뒤)는 GitHub 저장소 이름(`idea-mining`)이 아니라 `.claude-plugin/marketplace.json`의 `name` 필드인 **`my-plugins`**다. 헷갈리기 쉬운 부분이라 미리 적어둔다.
+설치 식별자(`@` 뒤)는 `.claude-plugin/marketplace.json`의 `name` 필드다 — 여기서는 저장소
+이름과 우연히 같지만(`idea-mining`), 항상 그렇다고 가정하지 않는다.
 
 ## 사용법 — 네 가지 모드
 
