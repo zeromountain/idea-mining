@@ -1,8 +1,0 @@
-{
-  "name": "wealth-manager",
-  "version": "0.2.0",
-  "description": "사용자의 전체 재무 상태(현금흐름·저축·소비·부채·보험·목표·순자산)를 관리하는 Personal CFO 멀티에이전트 스킬 플러그인. 가계 재무 안정성을 투자수익보다 우선하며, 기존 stock-analyst(주식)와 real-estate-advisor(부동산, HTTP :3001)를 대체하지 않고 그 위에서 오케스트레이션한다. 모든 계산은 결정론적 파이썬 스크립트가 하고, 판단은 서브에이전트가 하며, 부채상환/투자 우선순위 같은 충돌은 게이트 기반 산술 중재(arbitrate.py)로 재현 가능하게 해결한다.",
-  "author": {
-    "name": "son-yeongsan"
-  }
-}
