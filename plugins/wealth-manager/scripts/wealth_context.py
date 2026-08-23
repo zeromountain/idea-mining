@@ -296,7 +296,12 @@ def cmd_doctor(args) -> int:
                                f"— resolve 결과에만 있어야 한다")
 
     # confidence 고아 키 (병렬 트리 대신 평면 블록을 쓴 이유가 이 검사다)
+    # _note 등 밑줄 시작 필드는 _walk_leaves가 의도적으로 건너뛰므로(계산에 안 쓰는 주석)
+    # leaf_paths에 아예 나타나지 않는다 — 여기서도 같이 건너뛴다. 안 그러면 `set foo._note ...`가
+    # --confidence를 요구해놓고 doctor가 그걸 바로 고아 키 에러로 되돌려주는 모순이 생긴다.
     for key in ctx.get("confidence") or {}:
+        if key.rsplit(".", 1)[-1].split("#")[-1].startswith("_"):
+            continue
         if not any(p == key or p.startswith(key + ".") or p.startswith(key + "#") for p in leaf_paths):
             errors.append(f"고아 confidence 키: '{key}' — 해당하는 컨텍스트 노드가 없다")
 

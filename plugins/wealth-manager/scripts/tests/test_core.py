@@ -7,10 +7,14 @@
 """
 from __future__ import annotations
 
+import io
 import json
 import sys
+import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
+from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -19,6 +23,7 @@ import debt
 import goals
 import validate
 import wealth_common as wc
+import wealth_context
 
 
 class TestConfidenceLattice(unittest.TestCase):
@@ -53,6 +58,38 @@ class TestConfidenceLattice(unittest.TestCase):
             wc.assert_ratio(3.9)  # 퍼센트 오기입 의심 (0.039여야 함)
         self.assertEqual(wc.assert_won(5000000), 5000000)
         self.assertEqual(wc.assert_ratio(0.039), 0.039)
+
+
+class TestDoctorNoteField(unittest.TestCase):
+    """`_note`에 confidence를 기록하면 doctor가 고아 키로 오탐하던 실제 버그의 회귀 테스트.
+
+    _walk_leaves가 밑줄 시작 키를 계산에서 제외하려고 건너뛰는데, doctor의 고아 키 검사가
+    같은 처리를 안 해서 'set foo._note ... --confidence'가 요구한 값을 doctor가 즉시
+    에러로 되돌려주는 모순이 있었다.
+    """
+
+    def test_note_confidence_is_not_orphan(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ctx_path = Path(tmp) / "financial-context.json"
+            orig_path = wealth_context.CONTEXT_PATH
+            wealth_context.CONTEXT_PATH = ctx_path
+            try:
+                ctx = json.loads(json.dumps(wealth_context.DEFAULT_CONTEXT))
+                ctx["income"]["primary"]["annualGross"] = 35000000
+                ctx["income"]["primary"]["_note"] = "수습기간 90% 지급 중"
+                ctx.setdefault("confidence", {})["income.primary.annualGross"] = "VERIFIED"
+                ctx["confidence"]["income.primary._note"] = "VERIFIED"
+                wealth_context.save_context(ctx)
+
+                buf = io.StringIO()
+                with redirect_stdout(buf):
+                    code = wealth_context.cmd_doctor(SimpleNamespace(strict=False))
+                result = json.loads(buf.getvalue())
+                self.assertEqual(code, 0)
+                self.assertTrue(result["ok"])
+                self.assertEqual(result["errors"], [])
+            finally:
+                wealth_context.CONTEXT_PATH = orig_path
 
 
 class TestResolvePath(unittest.TestCase):
