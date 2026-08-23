@@ -57,7 +57,7 @@ cc --plugin-dir ~/claude-plugins/plugins/wealth-manager
 | | 방식 |
 |---|---|
 | `stock-analyst` | 파일 seam. `~/stock-research/profile.json`(6개 항목: 투자기간·위험감내도·최대낙폭·월투자금액·현재자산·현금필요시점)을 계산해 쓰고, `thesis/`·`reports/`를 읽는다. 게이트가 깨지면 `profile.blocked.json`을 쓰고 사유를 남긴다 |
-| `real-estate-advisor` | HTTP seam. `localhost:3001`의 `/analysis`, `/analysis/strategy`, `/calculator/{loan,dsr,ltv}`를 호출한다. 서버가 꺼져 있으면 `not_computable`로 degrade하고 로컬로 재구현하지 않는다 |
+| `real-estate-advisor` | HTTP seam. `localhost:3001`의 `/analysis`, `/analysis/strategy`, `/calculator/{loan,dsr,ltv}`를 호출한다. 서버가 꺼져 있으면 `not_computable`로 degrade하고 로컬로 재구현하지 않는다. `real-estate-advisor`의 검색 백엔드가 Mock이라 정책·규제 관련 항목이 구조적으로 항상 `PARTIAL`인데, `real-estate-researcher` 에이전트(WebSearch/WebFetch)가 그 공백을 공식 출처에서 채운다 — 계산은 여전히 API 전담 |
 
 두 시스템 모두 **단 한 줄도 수정하지 않는다** (`stock-analyst/skills/stock-analyst/references/portfolio.md`에
 `profile.blocked.json` 처리 1줄을 추가하는 것이 유일한 예외).

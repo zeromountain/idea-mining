@@ -218,6 +218,30 @@ class TestValidateSchema(unittest.TestCase):
         result = validate.validate_schema("arbitration", obj)
         self.assertFalse(result["ok"])
 
+    def test_policy_facts_provenance_must_be_agent_websearch(self):
+        # real-estate-researcher가 검색으로 찾은 사실이 API가 검증한 것처럼(verifiedBy="api")
+        # 표시되면 안 된다 — Verifier의 Evidence.subject 충돌검사 파이프라인 밖에 있는 사실을
+        # 서버 검증 사실과 같은 신뢰 수준으로 섞으면 안 된다는 설계 제약을 그대로 강제한다.
+        base = {"dataBasis": ["x"], "confidence": 0.5, "unknownImpact": ["x"],
+                "topic": "t", "sourcesChecked": [], "unresolved": []}
+        bad = {**base, "policyFacts": [{"item": "x", "verifiedBy": "api", "sourceUrl": "https://molit.go.kr"}]}
+        self.assertFalse(validate.validate_schema("real-estate-researcher", bad)["ok"])
+        good = {**base, "policyFacts": [{"item": "x", "verifiedBy": "agent-websearch",
+                                         "sourceUrl": "https://molit.go.kr"}]}
+        self.assertTrue(validate.validate_schema("real-estate-researcher", good)["ok"])
+
+    def test_policy_facts_require_source_url(self):
+        obj = {"dataBasis": ["x"], "confidence": 0.5, "unknownImpact": ["x"],
+               "topic": "t", "sourcesChecked": [], "unresolved": [],
+               "policyFacts": [{"item": "x", "verifiedBy": "agent-websearch"}]}
+        self.assertFalse(validate.validate_schema("real-estate-researcher", obj)["ok"])
+
+    def test_real_estate_liaison_policy_facts_field_is_optional(self):
+        # policyFacts가 없는(researcher를 안 불렀던) 기존 liaison 출력은 여전히 유효해야 한다.
+        obj = {"dataBasis": ["x"], "confidence": 0.4, "unknownImpact": ["x"],
+               "question": "q", "apiCalls": [], "findings": {}, "approvalNote": "note"}
+        self.assertTrue(validate.validate_schema("real-estate-liaison", obj)["ok"])
+
 
 if __name__ == "__main__":
     unittest.main()

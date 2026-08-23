@@ -84,6 +84,11 @@ python3 $S/validate.py --agent debt-manager out.json --ref ~/wealth/financial-co
 게이트 상태를 확보한 뒤에만 `stock-analyst` 스킬이나 `real-estate-liaison`을 부른다
 (`references/integration.md`).
 
+**`real-estate-liaison` 호출 뒤 응답에 정책(규제지역·토지거래허가·LTV/DSR 규정)·대출상품
+최신조건·시중은행 금리 관련 공백이 있으면 `real-estate-researcher`를 이어서 부른다.** 모든
+부동산 질문에 항상 부르지 않는다 — `real-estate-advisor`의 검색 백엔드가 Mock이라 구조적으로
+비어 있는 부분(주로 `policyAnalysis`)만 이 에이전트가 WebSearch로 채운다.
+
 ### 3단계: 중재 — arbitrate.py
 
 에이전트들의 제안(투자 확대, 조기상환, 보험 조정 등)을 `proposals.json` 형태로 모은다
@@ -148,6 +153,7 @@ python3 $S/wealth_context.py set <path> <value> --confidence <상태>   # 새로
 - `references/context-schema.md` — Shared Financial Context 스키마, confidence 인코딩
 - `references/arbitration.md` — 게이트 정의, arbitrate.py 입출력 계약, 충돌 해결 절차
 - `references/integration.md` — stock-analyst·real-estate-advisor 연동, profile.json 거부 규칙
+- `references/real-estate-sources.md` — 부동산 정책·상품·금리 출처 우선순위, 도메인 화이트리스트
 - `references/memory.md` — `~/wealth/` 레이아웃, 스냅샷·시나리오 저장 규칙
 - `references/templates.md` — report JSON 스키마, 모드별 상한
 

@@ -81,6 +81,44 @@ API가 꺼져 있으면(`pnpm --filter @rea/api start`로 시작) `not_computabl
 재구현하지 않고 그대로 사용자에게 알린다. 서울 25개 자치구 밖 주소, `dataProvider: "MOCK"`,
 `approvalNote`는 반드시 원문 그대로 전달한다 (`real-estate-liaison.md` 참고).
 
+### 연구 공백 — `real-estate-researcher`가 메우는 부분
+
+`real-estate-advisor`의 `ResearchProvider`는 `MockResearchProvider`로 하드코딩돼 있다
+(`apps/api/src/app.module.ts`) — 실제 웹 검색 백엔드는 그 프로젝트 자신의
+`docs/implementation-plan.md`가 "Phase 5의 가장 큰 미완성"이라고 명시할 만큼 코드에 없다.
+이게 막는 범위는 균일하지 않다:
+
+| 분석 | 막힘 정도 | 실제 원인 |
+|---|---|---|
+| `policyAnalysis` (규제지역·토지거래허가·LTV/DSR 규정·전매제한) | **완전 차단**, 항상 `PARTIAL` | `policy.agent.ts`가 `ctx.research`를 직접 호출하는데 Mock이라 항상 빈 배열 |
+| `loanAnalysis` | 부분 — 데이터는 있지만 얼어 있음 | `SEED` 프로바이더, 버팀목·청년전용 버팀목 2종만, 기준일 고정 |
+| `safetyAnalysis` | 영향 적음 | 원래 계획엔 있었으나 코드에 연구 호출 자체가 없음 |
+| 시중은행 주택담보대출 금리 | **원천이 아예 없음** | 문서: "시중은행 주택담보대출 금리를 조회할 수단이 없다" — 그래서 `fundingCandidates`를 사용자가 직접 입력해야 한다 |
+| `publicHousingAnalysis` | 부분 | LH만, 공고 PDF 원문 파싱 미구현 → `eligibility: UNKNOWN`이 흔함 |
+
+`real-estate-researcher` 에이전트(`agents/real-estate-researcher.md`)가 WebSearch/WebFetch로
+이 공백, 특히 `policyAnalysis`를 채운다. **모든 부동산 질문에 부르지 않는다** — `real-estate-liaison`이
+받은 `/analysis` 응답의 `degradations`/`missingInformation`에 정책·상품·금리 관련 항목이
+실제로 있을 때만 오케스트레이터가 이어서 호출한다. 출처 우선순위·도메인 화이트리스트·신선도는
+`references/real-estate-sources.md` — `real-estate-advisor/docs/data-sources.md`와
+`.claude/agents/real-estate-researcher.md`에서 그대로 옮겨온 표다(재발명하지 않는다).
+
+**Provenance 분리가 핵심 제약이다.** `real-estate-advisor`의 Verifier는 서버가 낸
+`knownFacts`끼리만 `Evidence.subject` 기준으로 충돌을 검사한다. `real-estate-researcher`가
+검색으로 찾은 사실은 그 파이프라인 밖에 있으므로 `policyFacts[]`에 `verifiedBy:
+"agent-websearch"`로 표시하고 API 사실과 같은 신뢰 수준으로 섞지 않는다 —
+`validate.py`가 이 태그와 `sourceUrl` 존재를 스키마 에러로 강제한다.
+
+**`missingInformation[].askIfNeeded`를 활용한다.** API 스키마에 이미 있는(그러나 지금까지
+아무도 안 쓰던) 필드다 — 부족한 정보가 결과를 어떻게 바꾸는지까지 담은 완성된 질문 문구다.
+`real-estate-advisor/docs/agents.md` §14 질문 전략(부분 답변 먼저, 질문은 그 다음)을 그대로
+따라 이 문구를 다음 행동 자리에 쓴다.
+
+**재계산 피드백 루프(선택).** 확인된 규제값이 `AnalysisContext` 필드로 표현되면(예: 규제지역
+LTV 상한 → `loanToValuePercent`), 그 값을 다음 `/analysis` 호출의 `context`에 넣어 다시 부를
+수 있다 — `mergeContext()`가 호출자 제공 context를 우선하므로 계산 자체가 더 정확해진다.
+기본 경로는 아니고, 재계산이 필요할 때만 쓴다.
+
 ## 순서 원칙
 
 투자·부동산 도메인 에이전트는 재무 core(cashflow·debt·goal) **다음에** 부른다. 게이트 상태

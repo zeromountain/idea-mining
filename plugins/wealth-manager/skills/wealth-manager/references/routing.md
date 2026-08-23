@@ -10,7 +10,8 @@
 | "이 보험 해지해도 돼?" | insurance-manager · cashflow-analyst → financial-risk-manager → Wealth Manager |
 | "S&P500에 월 100만원씩 투자해도 될까" | cashflow-analyst · debt-manager · goal-manager → arbitrate.py → (ADMITTED면) stock-analyst 스킬 호출 → financial-risk-manager → Wealth Manager |
 | "이 종목 사도 될까" (종목 지정) | 위와 동일 + stock-analyst의 quick/deep 모드로 종목 자체 분석 |
-| "6억원짜리 아파트를 사도 될까" | cashflow-analyst · debt-manager · goal-manager · insurance-manager → real-estate-liaison → arbitrate.py → financial-risk-manager → Wealth Manager |
+| "6억원짜리 아파트를 사도 될까" | cashflow-analyst · debt-manager · goal-manager · insurance-manager → real-estate-liaison → (정책/상품/금리 공백 있으면 real-estate-researcher) → arbitrate.py → financial-risk-manager → Wealth Manager |
+| "이 동네 토지거래허가구역이야?" / "버팀목 소득기준 얼마야" | real-estate-liaison → real-estate-researcher(정책·상품 검색) → Wealth Manager |
 | "차 5,000만원 사면 어떻게 돼?" | scenario.py(시나리오 조립) → goal-manager · cashflow-analyst → financial-risk-manager → Wealth Manager |
 | "순자산 얼마야" / "이번달 변화" | `snapshot.py series`/`delta` 읽기만. **에이전트 0개** |
 | "이 대출 갈아탈까?" | debt-manager (refinance 서브커맨드) → financial-risk-manager → Wealth Manager |

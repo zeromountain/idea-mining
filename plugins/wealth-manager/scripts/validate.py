@@ -92,6 +92,16 @@ SCHEMAS: dict[str, dict] = {
         "findings": (dict, True),
         "approvalNote": (str, True),
         "notComputable": (list, False),
+        "policyFacts": (list, False),
+        "nextQuestions": (list, False),
+    },
+    "real-estate-researcher": {
+        **_COMMON,
+        "topic": (str, True),
+        "sourcesChecked": (list, True),
+        "policyFacts": (list, True),
+        "unresolved": (list, True),
+        "nextQuestions": (list, False),
     },
     "report": {
         "mode": (str, True),
@@ -202,6 +212,25 @@ def validate_schema(agent: str, obj) -> dict:
     if agent == "real-estate-liaison":
         if not (obj.get("approvalNote") or "").strip():
             errors.append("approvalNote가 비어 있다 — API 원문을 그대로 날라야 한다 (문서 §17)")
+
+    if agent in ("real-estate-liaison", "real-estate-researcher"):
+        # provenance 분리: 검색으로 찾은 사실은 API가 검증한 것처럼 표시할 수 없다.
+        # verifiedBy가 없거나 "agent-websearch"가 아니면 API의 knownFacts와 섞여 들어왔다는 뜻이다.
+        for i, fact in enumerate(obj.get("policyFacts") or []):
+            if not isinstance(fact, dict):
+                errors.append(f"policyFacts[{i}]가 객체가 아니다")
+                continue
+            if fact.get("verifiedBy") != "agent-websearch":
+                errors.append(f"policyFacts[{i}].verifiedBy가 'agent-websearch'가 아니다 "
+                              f"(받은 값: {fact.get('verifiedBy')!r}) — 검색으로 찾은 사실은 "
+                              f"API의 knownFacts와 구분되는 provenance를 가져야 한다")
+            if not fact.get("sourceUrl"):
+                errors.append(f"policyFacts[{i}]에 sourceUrl이 없다 — 출처 없는 정책 사실은 낼 수 없다")
+
+    if agent == "real-estate-researcher":
+        for i, item in enumerate(obj.get("unresolved") or []):
+            if isinstance(item, dict) and not item.get("reason"):
+                errors.append(f"unresolved[{i}]에 reason이 없다 — 왜 확인 못 했는지 남긴다")
 
     if agent == "report":
         for a in obj.get("actions") or []:
